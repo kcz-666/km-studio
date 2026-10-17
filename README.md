@@ -14,22 +14,28 @@
 │   ├── curated.json                  # ★ 手写项目文案，改这里
 │   └── projects.js                   # 自动生成，勿手改
 ├── scripts/
-│   └── build-projects.mjs            # curated + GitHub API → projects.js
-└── .github/workflows/
-    └── update-projects.yml           # 每天 UTC 02:00 自动刷新
+│   ├── build-projects.mjs            # curated + GitHub API → projects.js
+│   └── push-all.ps1                  # 一键推送全部 5 个仓库（PS7）
+├── .github/workflows/
+│   └── update-projects.yml           # 每天 UTC 02:00 自动刷新
+└── PROJECT-STATUS.md                 # 完整状态记录（架构 / 操作 / 注意事项）
 ```
 
 ## 更新项目信息
 
 **改文案**：编辑 `data/curated.json`，然后
 
-```bash
-node scripts/build-projects.mjs
+```powershell
+pwsh -File scripts\push-all.ps1
 ```
+
+脚本会自动重新生成 `projects.js` 并推送到 GitHub，1-2 分钟后站点重建。
 
 **加新项目**：在 `curated.json` 的 `projects` 数组里加一项，填 `id` / `repo` / `layout` / 文案即可。`layout` 可选 `large` / `tall` / `wide` / `small` / `full`。
 
 **自动统计**：项目仓库有 push 后，Action 会在下次定时任务时拉取最新数据（最近推送时间、最后一次 commit、语言构成、仓库体积），写进 `data/projects.js` 的 `stats` 字段。卡片上会显示 `· 3d ago` 这类相对时间，modal 里显示完整统计。
+
+> 本地跑 `build-projects.mjs` 时如果没有 PAT，会**沿用上一版的 stats**，不会把线上已有的统计抹掉。
 
 ## GitHub Actions 配置
 

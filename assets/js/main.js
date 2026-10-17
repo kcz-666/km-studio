@@ -655,13 +655,13 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // ---- Bento 卡片的鼠标光晕 ----
-  $$('.bento-card').forEach((card) => {
-    card.addEventListener('mousemove', (e) => {
-      const r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
-      card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
-    });
+  // ---- Bento 卡片的鼠标光晕（事件委托，兼容动态渲染的卡片）----
+  document.addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.bento-card');
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
+    card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
   });
 
   // ---- 滚动揭示 ----
@@ -676,7 +676,13 @@
     },
     { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
   );
-  $$('.reveal').forEach((el) => io.observe(el));
+  // 抽成函数：静态元素 + 动态渲染的卡片都要注册
+  function initReveal() {
+    $$('.reveal').forEach((el) => {
+      if (!el.classList.contains('visible')) io.observe(el);
+    });
+  }
+  initReveal();
 
   // ---- Live time ----
   const timeEl = $('#live-time');
@@ -782,6 +788,9 @@
   }
 
   renderBento();
+  // 卡片是动态插入的，渲染完必须重新注册 reveal 观察器，
+  // 否则 .reveal 的 opacity:0 会让整个项目区不可见
+  initReveal();
 
   // ============================================
   const modal = $('#project-modal');
@@ -857,13 +866,12 @@
     document.body.style.overflow = '';
   }
 
-  // 点击项目卡打开 modal
-  $$('.bento-card[data-index]').forEach((card) => {
-    card.addEventListener('click', () => {
-      const key = card.dataset.index;
-      if (key) openModal(key);
-    });
-    card.style.cursor = 'pointer';
+  // 点击项目卡打开 modal（事件委托：卡片是动态渲染的）
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.bento-card[data-index]');
+    if (!card) return;
+    e.preventDefault();
+    openModal(card.dataset.index);
   });
 
   // 关闭

@@ -1210,6 +1210,7 @@ body[data-theme="light"] .site-header {
   transition: all 0.4s var(--ease);
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 .bento-card::before {
   content: "";

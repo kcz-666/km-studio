@@ -1,7 +1,7 @@
 // 自动生成，请勿手改。改文案请编辑 data/curated.json
 window.KM_PROJECTS = {
-  "generated_at": "2026-10-17T08:51:47.531Z",
-  "has_live_stats": false,
+  "generated_at": "2026-10-17T10:59:36.132Z",
+  "has_live_stats": true,
   "projects": [
     {
       "id": "living-world-rp",
@@ -42,7 +42,32 @@ window.KM_PROJECTS = {
           ]
         }
       ],
-      "stats": null
+      "stats": {
+        "pushed_at": "2026-10-17T08:32:07Z",
+        "updated_at": "2026-10-17T08:32:11Z",
+        "size_kb": 498,
+        "private": true,
+        "default_branch": "main",
+        "language": "JavaScript",
+        "languages": [
+          {
+            "name": "JavaScript",
+            "pct": 93
+          },
+          {
+            "name": "CSS",
+            "pct": 4
+          },
+          {
+            "name": "HTML",
+            "pct": 3
+          }
+        ],
+        "last_commit": {
+          "message": "init: 活档案多世界角色扮演平台",
+          "date": "2026-10-17T06:21:07Z"
+        }
+      }
     },
     {
       "id": "rance03-editor",
@@ -86,7 +111,28 @@ window.KM_PROJECTS = {
           ]
         }
       ],
-      "stats": null
+      "stats": {
+        "pushed_at": "2026-10-17T08:32:11Z",
+        "updated_at": "2026-10-17T08:32:14Z",
+        "size_kb": 42,
+        "private": true,
+        "default_branch": "main",
+        "language": "Python",
+        "languages": [
+          {
+            "name": "Python",
+            "pct": 100
+          },
+          {
+            "name": "Batchfile",
+            "pct": 0
+          }
+        ],
+        "last_commit": {
+          "message": "init: 兰斯03存档修改器",
+          "date": "2026-10-17T06:21:18Z"
+        }
+      }
     },
     {
       "id": "cx-exam-float",
@@ -124,7 +170,28 @@ window.KM_PROJECTS = {
           ]
         }
       ],
-      "stats": null
+      "stats": {
+        "pushed_at": "2026-10-17T08:32:15Z",
+        "updated_at": "2026-10-17T08:32:19Z",
+        "size_kb": 36,
+        "private": true,
+        "default_branch": "main",
+        "language": "Python",
+        "languages": [
+          {
+            "name": "Python",
+            "pct": 91
+          },
+          {
+            "name": "Batchfile",
+            "pct": 9
+          }
+        ],
+        "last_commit": {
+          "message": "init: 超星考试 AI 悬浮窗工具（二次开发）",
+          "date": "2026-10-17T06:21:32Z"
+        }
+      }
     },
     {
       "id": "esp32-s3-lab",
@@ -171,7 +238,19 @@ window.KM_PROJECTS = {
           ]
         }
       ],
-      "stats": null
+      "stats": {
+        "pushed_at": "2026-10-17T08:32:20Z",
+        "updated_at": "2026-10-17T08:32:24Z",
+        "size_kb": 1,
+        "private": true,
+        "default_branch": "main",
+        "language": null,
+        "languages": [],
+        "last_commit": {
+          "message": "init: ESP32-S3 硬件方向选题记录",
+          "date": "2026-10-17T06:21:43Z"
+        }
+      }
     },
     {
       "id": "brewing",

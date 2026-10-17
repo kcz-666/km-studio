@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KM Studio · 个人项目地图</title>
+<meta name="description" content="一个不太正经的个人项目陈列室。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;800&family=Outfit:wght@300;400;500;600&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+<body data-theme="night">
+  <!-- 全局背景（跨 section） -->
+  <div class="site-bg" aria-hidden="true">
+    <div class="bg-base"></div>
+    <div class="theme-veil" data-veil="night"></div>
+    <div class="theme-veil" data-veil="dawn"></div>
+    <div class="theme-veil" data-veil="day"></div>
+    <div class="theme-veil" data-veil="dusk"></div>
+
+    <!-- 天体：太阳 + 月亮 + 云（位置由 JS 按时间驱动） -->
+    <div class="celestial">
+      <div class="clouds">
+        <div class="cloud c1"><svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><path d="M 45 85 Q 20 85 22 65 Q 15 45 35 42 Q 40 20 65 25 Q 80 5 105 18 Q 130 8 140 32 Q 168 30 172 55 Q 185 70 165 85 Z"/></svg></div>
+        <div class="cloud c2"><svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><path d="M 45 85 Q 20 85 22 65 Q 15 45 35 42 Q 40 20 65 25 Q 80 5 105 18 Q 130 8 140 32 Q 168 30 172 55 Q 185 70 165 85 Z"/></svg></div>
+        <div class="cloud c3"><svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><path d="M 45 85 Q 20 85 22 65 Q 15 45 35 42 Q 40 20 65 25 Q 80 5 105 18 Q 130 8 140 32 Q 168 30 172 55 Q 185 70 165 85 Z"/></svg></div>
+        <div class="cloud c4"><svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><path d="M 45 85 Q 20 85 22 65 Q 15 45 35 42 Q 40 20 65 25 Q 80 5 105 18 Q 130 8 140 32 Q 168 30 172 55 Q 185 70 165 85 Z"/></svg></div>
+      </div>
+
+      <div class="sun" id="sun">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle class="sun-halo" cx="100" cy="100" r="78" />
+          <g class="sun-rays">
+            <line x1="152" y1="100" x2="176" y2="100" />
+            <line x1="145" y1="126" x2="166" y2="138" />
+            <line x1="126" y1="145" x2="138" y2="166" />
+            <line x1="100" y1="152" x2="100" y2="176" />
+            <line x1="74"  y1="145" x2="62"  y2="166" />
+            <line x1="55"  y1="126" x2="34"  y2="138" />
+            <line x1="48"  y1="100" x2="24"  y2="100" />
+            <line x1="55"  y1="74"  x2="34"  y2="62" />
+            <line x1="74"  y1="55"  x2="62"  y2="34" />
+            <line x1="100" y1="48"  x2="100" y2="24" />
+            <line x1="126" y1="55"  x2="138" y2="34" />
+            <line x1="145" y1="74"  x2="166" y2="62" />
+          </g>
+          <circle class="sun-body" cx="100" cy="100" r="42" />
+        </svg>
+      </div>
+
+      <div class="moon" id="moon">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle class="moon-halo" cx="100" cy="100" r="80" />
+          <circle class="moon-body" cx="100" cy="100" r="44" />
+          <circle class="moon-crater" cx="84" cy="82" r="10" />
+          <circle class="moon-crater" cx="118" cy="104" r="7" />
+          <circle class="moon-crater" cx="90" cy="124" r="5" />
+          <circle class="moon-crater" cx="112" cy="70" r="4" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="bg-stars" id="bg-stars"></div>
+    <div class="bg-aurora"></div>
+    <div class="bg-meteors" id="bg-meteors"></div>
+    <div class="bg-noise"></div>
+  </div>
+
+  <!-- 自定义光标 -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- 顶部固定导航：终端式 -->
+  <header class="site-header">
+    <div class="container header-row">
+      <a href="#top" class="brand">
+        <span class="brand-mark">●</span>
+        <span class="brand-text">km.studio</span>
+        <span class="brand-version">v0.1 // preview</span>
+      </a>
+
+      <nav class="nav-pill">
+        <a href="#projects" class="nav-link">projects</a>
+        <a href="#timeline" class="nav-link">timeline</a>
+        <a href="#about" class="nav-link">about</a>
+        <a href="#contact" class="nav-link">contact</a>
+      </nav>
+
+      <div class="header-controls">
+        <button class="theme-pill" id="theme-pill" aria-label="切换主题" title="点击平滑过渡到下一时段">
+          <span class="tp-dot"></span>
+          <span class="tp-label" id="theme-label">night</span>
+        </button>
+
+        <button class="speed-pill" id="speed-pill" aria-label="时间倍率" title="时间倍率（演示用）">
+          <span class="sp-icon"></span>
+          <span class="sp-value" id="speed-value">1×</span>
+        </button>
+
+        <!-- 倍率面板 -->
+        <div class="speed-panel" id="speed-panel">
+          <div class="sp-head">
+            <span class="sp-title">time warp</span>
+            <span class="sp-clock" id="sp-clock">--:--:--</span>
+          </div>
+          <p class="sp-hint">拖动滑块加速虚拟时间，快速演示四个时段的过渡动画。1× 为真实时间。</p>
+          <input
+            type="range"
+            class="speed-slider"
+            id="speed-slider"
+            min="0"
+            max="100"
+            value="0"
+            step="1"
+            aria-label="时间倍率"
+          />
+          <div class="speed-presets">
+            <button class="speed-preset active" data-speed="1">1×</button>
+            <button class="speed-preset" data-speed="60">60×</button>
+            <button class="speed-preset" data-speed="600">600×</button>
+            <button class="speed-preset" data-speed="3600">3600×</button>
+          </div>
+          <div class="sp-theme-name">
+            <span>当前时段</span>
+            <span><b id="sp-theme-name">night</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-meta">
+          <span class="dot-live"></span>
+          <span>online · drafting in progress</span>
+          <span class="sep">/</span>
+          <span id="live-time">--:--:--</span>
+          <span class="sep">/</span>
+          <span>local</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="line line-1">建一些东西</span>
+          <span class="line line-2">
+            <em>拆一些</em>东西
+          </span>
+          <span class="line line-3">再拼回来。</span>
+        </h1>
+
+        <p class="hero-sub">
+          这是一个不太正经的个人项目陈列室。<br />
+          我把最近在折腾的东西放在这里 —— 不分大小，不分完成度。<br />
+          你可以往下翻，也可以敲 <kbd>help</kbd> 试试右上角的终端。
+        </p>
+
+        <div class="hero-actions">
+          <a href="#projects" class="btn-primary magnetic">
+            <span>看看项目</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#terminal" class="btn-ghost magnetic">
+            <span class="dot-cursor"></span>打开终端
+          </a>
+        </div>
+
+        <!-- 滚动提示 -->
+        <div class="scroll-cue">
+          <span>scroll</span>
+          <div class="scroll-cue-line"></div>
+        </div>
+      </div>
+
+      <!-- 局部网格（hero 内） -->
+      <div class="hero-grid" aria-hidden="true"></div>
+    </section>
+
+    <!-- TERMINAL 互动区 -->
+    <section id="terminal" class="terminal-section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">01</span>
+          <h2 class="section-title">terminal<span class="blink">_</span></h2>
+          <p class="section-sub">试着敲几个命令 —— 它会跳，也会说点废话。</p>
+        </div>
+
+        <div class="terminal-window" id="terminal-window">
+          <div class="terminal-bar">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+            <span class="terminal-title">km@studio: ~</span>
+          </div>
+          <div class="terminal-body" id="terminal-body">
+            <div class="t-line">
+              <span class="t-prompt">visitor@km.studio</span>
+              <span class="t-sep">~</span>
+              <span class="t-path">$</span>
+              <span class="t-out">欢迎。敲 <code>help</code> 看可用命令。</span>
+            </div>
+            <div class="t-line">
+              <span class="t-prompt">visitor@km.studio</span>
+              <span class="t-sep">~</span>
+              <span class="t-path">$</span>
+              <span class="t-out">小提示: <code>ls</code> 列项目, <code>cat 1</code> 看项目1, <code>whoami</code> 看我。</span>
+            </div>
+          </div>
+          <div class="terminal-input-row">
+            <span class="t-prompt">visitor@km.studio</span>
+            <span class="t-sep">~</span>
+            <span class="t-path">$</span>
+            <input
+              type="text"
+              id="terminal-input"
+              class="terminal-input"
+              placeholder="type a command…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+        </div>
+
+        <!-- 命令提示气泡 -->
+        <div class="command-chips">
+          <button class="chip" data-cmd="help">help</button>
+          <button class="chip" data-cmd="ls">ls</button>
+          <button class="chip" data-cmd="cat 1">cat 1</button>
+          <button class="chip" data-cmd="open 2">open 2</button>
+          <button class="chip" data-cmd="status">status</button>
+          <button class="chip" data-cmd="theme dawn">theme dawn</button>
+          <button class="chip" data-cmd="speed 600">speed 600</button>
+          <button class="chip" data-cmd="time">time</button>
+          <button class="chip" data-cmd="secret">secret</button>
+          <button class="chip" data-cmd="clear">clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS / BENTO -->
+    <section id="projects" class="projects-section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">02</span>
+          <h2 class="section-title">projects<span class="blink">_</span></h2>
+          <p class="section-sub">最近在弄的东西，不分大小，不分完成度。</p>
+        </div>
+
+        <div class="bento" id="bento"></div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section id="timeline" class="timeline-section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">03</span>
+          <h2 class="section-title">timeline<span class="blink">_</span></h2>
+          <p class="section-sub">粗略的时间脉络，按印象走的，不准。</p>
+        </div>
+
+        <ol class="timeline">
+          <li class="t-item reveal">
+            <span class="t-time">2026 · Q4 → now</span>
+            <h4>活档案角色扮演平台</h4>
+            <p>Node.js + SQLite 全栈。导演系统、回合编译器、倒扣时钟模拟、SSE 可视化大屏。目前主力项目。</p>
+            <span class="t-tag">building</span>
+          </li>
+          <li class="t-item reveal">
+            <span class="t-time">2026 · 10 月</span>
+            <h4>ESP32-S3 选题探索</h4>
+            <p>边缘智能硬件方向。三个候选方案在桌上，还没开第一行代码。</p>
+            <span class="t-tag">planning</span>
+          </li>
+          <li class="t-item reveal">
+            <span class="t-time">2026 · 9 月</span>
+            <h4>兰斯03修改器结项</h4>
+            <p>二进制解析全链路手写。打包 exe 发朋友版，功成身退。</p>
+            <span class="t-tag">shipped</span>
+          </li>
+          <li class="t-item reveal">
+            <span class="t-time">2026 · 6 月</span>
+            <h4>AI 答题悬浮窗结项</h4>
+            <p>防录屏 + 四家 AI + 题库搜索。第一个"发出去别人真在用"的工具。</p>
+            <span class="t-tag">archived</span>
+          </li>
+          <li class="t-item reveal">
+            <span class="t-time">更早</span>
+            <h4>一些散乱的项目和笔记</h4>
+            <p>数据结构、爬虫、小工具 —— 不一一列举。</p>
+            <span class="t-tag">misc</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CURRENTLY -->
+    <section id="currently" class="currently-section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">04</span>
+          <h2 class="section-title">currently<span class="blink">_</span></h2>
+          <p class="section-sub">最近一周的状态快照。</p>
+        </div>
+
+        <div class="currently-grid">
+          <div class="cur-card reveal">
+            <div class="cur-label"><span class="dot-live"></span>现在在写</div>
+            <div class="cur-value">活档案平台 · 回合编译器四层降级</div>
+          </div>
+          <div class="cur-card reveal">
+            <div class="cur-label"><span class="dot-live" style="background:var(--yellow)"></span>在读</div>
+            <div class="cur-value">自己的开发记录（146KB 越写越长）</div>
+          </div>
+          <div class="cur-card reveal">
+            <div class="cur-label"><span class="dot-live" style="background:var(--accent)"></span>在听</div>
+            <div class="cur-value" id="cur-music">env 类的 ambient，或者干脆静音</div>
+          </div>
+          <div class="cur-card reveal">
+            <div class="cur-label"><span class="dot-live" style="background:var(--green)"></span>在想</div>
+            <div class="cur-value">ESP32-S3 选 A 方案还是 B 方案</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="about-section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">05</span>
+          <h2 class="section-title">about<span class="blink">_</span></h2>
+          <p class="section-sub">关于这个人和这个站。</p>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-block reveal">
+            <h4>我是谁</h4>
+            <p>
+              数据科学与大数据技术专业，2027 届。
+              白天写代码，晚上拆二进制。
+              喜欢把东西拆开再拼回去，讨厌纯演示。
+            </p>
+          </div>
+          <div class="about-block reveal">
+            <h4>这个站干嘛的</h4>
+            <p>
+              个人项目陈列室。不为简历存在，不为流量存在。
+              就是想给最近折腾的东西一个安静的家。
+            </p>
+          </div>
+          <div class="about-block reveal">
+            <h4>在用什么</h4>
+            <p>
+              Node.js · better-sqlite3 · Python · tkinter ·
+              Win32 API · ESP-IDF · 以及一堆没写在这里的工具。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECT MODAL -->
+    <div id="project-modal" class="pmodal" aria-hidden="true">
+      <div class="pmodal-backdrop" data-close></div>
+      <div class="pmodal-card" role="dialog" aria-modal="true" aria-labelledby="pmodal-title">
+        <button class="pmodal-close" data-close aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <div class="pmodal-body" id="pmodal-body">
+          <!-- 内容由 JS 注入 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT / FOOTER -->
+    <footer id="contact" class="site-footer">
+      <div class="container">
+        <div class="footer-row">
+          <div class="footer-left">
+            <h3>想聊点什么？</h3>
+            <p>
+              项目交流、技术吐槽、随便聊。
+              <br />回邮件不一定快，但会回。
+            </p>
+          </div>
+          <div class="footer-right">
+            <a class="contact-pill magnetic" href="mailto:hello@example.com">
+              <span class="dot-live"></span> hello@example.com
+            </a>
+            <a class="contact-pill magnetic" href="#">
+              github ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-meta">
+          <span>// built by hand · 2026</span>
+          <span>// 不更新也不会死</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="./data/projects.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>

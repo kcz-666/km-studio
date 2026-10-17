@@ -1,0 +1,41 @@
+name: update project stats
+
+on:
+  schedule:
+    # 每天 UTC 02:00（北京时间 10:00）自动刷新
+    - cron: '0 2 * * *'
+  workflow_dispatch: # 支持手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build data/projects.js
+        env:
+          # 需要能读 4 个私有仓库的 PAT（fine-grained，Contents: Read）
+          # 在仓库 Settings → Secrets and variables → Actions 里添加
+          GH_PAT: ${{ secrets.PROJECTS_PAT }}
+        run: node scripts/build-projects.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/projects.js
+          if git diff --staged --quiet; then
+            echo "no changes, skip commit"
+          else
+            git commit -m "chore: refresh project stats"
+            git push
+          fi

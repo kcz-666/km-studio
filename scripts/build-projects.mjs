@@ -61,6 +61,24 @@ async function fetchStats(repo) {
 
 const curated = JSON.parse(await readFile(resolve(root, 'data/curated.json'), 'utf8'));
 
+// ---- 读取上一版 projects.js，用于回填 stats ----
+// 本地没有 PAT 时拉不到私有仓库统计，但直接覆盖会把 Actions 已经拉到的
+// 数据抹掉。这里保留旧值，等下次 Actions 跑起来再刷新。
+const prevStats = {};
+try {
+  const oldRaw = await readFile(resolve(root, 'data/projects.js'), 'utf8');
+  const jsonText = oldRaw.slice(oldRaw.indexOf('{'), oldRaw.lastIndexOf('}') + 1);
+  const oldObj = JSON.parse(jsonText);
+  for (const p of oldObj.projects || []) {
+    if (p.id && p.stats) prevStats[p.id] = p.stats;
+  }
+  if (Object.keys(prevStats).length) {
+    console.log(`↺ 回填上一版统计: ${Object.keys(prevStats).length} 个项目`);
+  }
+} catch {
+  // 首次运行或旧文件损坏，忽略
+}
+
 const projects = [];
 for (const p of curated.projects) {
   let stats = null;
@@ -71,6 +89,11 @@ for (const p of curated.projects) {
     } catch (e) {
       console.warn(`! ${p.repo}: ${e.message}`);
     }
+  }
+  // 拉取失败时沿用旧统计，避免线上数据倒退
+  if (!stats && prevStats[p.id]) {
+    stats = prevStats[p.id];
+    console.log(`↺ ${p.id}: 沿用旧统计`);
   }
   projects.push({ ...p, stats });
 }
@@ -89,3 +112,4 @@ await writeFile(
 
 const ok = projects.filter((p) => p.stats).length;
 console.log(`→ data/projects.js  (${projects.length} projects, ${ok} with live stats)`);
+

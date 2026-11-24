@@ -1,6 +1,6 @@
 // 自动生成，请勿手改。改文案请编辑 data/curated.json
 window.KM_PROJECTS = {
-  "generated_at": "2026-11-23T10:36:17.233Z",
+  "generated_at": "2026-11-24T12:19:19.364Z",
   "has_live_stats": true,
   "projects": [
     {
